@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Explorador de Sesiones Educativas</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            line-height: 1.5;
+            color: #333;
+            background-color: #f5f5f5;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            color: #2d3748;
+        }
+
+        .accordion-section {
+            margin-bottom: 10px;
+        }
+
+        .accordion-button {
+            width: 100%;
+            text-align: left;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 500;
+            transition: background-color 0.2s;
+        }
+
+        .accordion-button:hover {
+            background-color: #e9ecef;
+        }
+
+        .accordion-content {
+            display: none;
+            padding: 15px;
+            border: 1px solid #e9ecef;
+            border-top: none;
+            border-radius: 0 0 6px 6px;
+            margin-top: -5px;
+        }
+
+        .accordion-content.active {
+            display: block;
+        }
+
+        .activity-card {
+            background-color: #f8f9fa;
+            border-radius: 6px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        .activity-title {
+            color: #4a5568;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .activity-description {
+            color: #718096;
+            margin-bottom: 10px;
+        }
+
+        .activity-details {
+            color: #718096;
+            margin-bottom: 10px;
+        }
+
+        .activity-objective {
+            color: #4a5568;
+        }
+
+        .nested-content {
+            margin-left: 20px;
+            padding-left: 15px;
+            border-left: 2px solid #e2e8f0;
+        }
+
+        .chevron::after {
+            content: '▼';
+            font-size: 12px;
+            transition: transform 0.3s;
+        }
+
+        .collapsed .chevron::after {
+            content: '▶';
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>Explorador de Sesiones Educativas</h1>
+        </header>
+        <div id="sessionContainer"></div>
+    </div>
+
+    <script>
+        const sessionData = {
+    "Sesión 1: Comunicación y Resolución de Conflictos": {
+      "Semana 1: Introducción y Comunicación Efectiva": {
+        "Día 1": {
+          "Actividad 1: Teléfono descompuesto": {
+            descripcion: "Los estudiantes forman un círculo. El primer estudiante recibe una frase compleja que debe susurrar al oído del siguiente.",
+            detalles: "Cada estudiante transmite lo que entendió al siguiente, hasta llegar al último. El último estudiante dice en voz alta lo que entendió y se compara con la frase original. Se pueden usar frases relacionadas con la resolución de conflictos para dar contexto.",
+            objetivo: "Mostrar cómo la comunicación puede distorsionarse y la importancia de la claridad"
+          },
+          "Actividad 2: Presentación visual": {
+            descripcion: "Presentación interactiva que incluye ejemplos visuales de comunicación efectiva vs. inefectiva.",
+            detalles: "Se pueden mostrar videos cortos de situaciones cotidianas, diagramas de los elementos de la comunicación, y ejemplos de lenguaje corporal. Los estudiantes participan identificando elementos clave en cada ejemplo.",
+            objetivo: "Enseñar los conceptos básicos de comunicación"
+          }
+        },
+        "Día 2": {
+          "Actividad 1: Juego de Mímica": {
+            descripcion: "Los estudiantes reciben tarjetas con emociones y situaciones para representar sin palabras.",
+            detalles: "Los estudiantes reciben tarjetas con diferentes emociones, situaciones o acciones (ejemplo: 'estás molesto porque alguien tomó tu lápiz', 'estás tratando de explicar algo importante'). Deben representarlas sin palabras, usando solo gestos y expresiones faciales.",
+            objetivo: "Desarrollar habilidades de comunicación no verbal"
+          },
+          "Actividad 2: Reflexión grupal": {
+            descripcion: "Se forma un círculo de discusión sobre experiencias de comunicación.",
+            detalles: "Cada estudiante comparte una experiencia donde sintió que no fue escuchado adecuadamente. Se analiza cómo se sintieron, qué hubieran querido que fuera diferente, y cómo afectó esto sus relaciones. Se establecen conexiones entre las diferentes experiencias.",
+            objetivo: "Fomentar la empatía y la escucha activa"
+          }
+        }
+      },
+      "Semana 2: Resolución de Conflictos": {
+        "Día 1": {
+          "Actividad 1: Dramatización": {
+            descripcion: "Los estudiantes representan situaciones de conflicto y su resolución.",
+            detalles: "Los estudiantes se dividen en pequeños grupos. Cada grupo recibe una tarjeta con una situación de conflicto común (ejemplo: desacuerdos en trabajo en grupo, malentendidos entre amigos). Preparan y representan la escena, mostrando tanto el conflicto como posibles formas de resolverlo.",
+            objetivo: "Identificar conflictos y practicar su resolución"
+          },
+          "Actividad 2: Discusión grupal": {
+            descripcion: "Análisis colectivo de las dramatizaciones.",
+            detalles: "Después de cada dramatización, se analiza en grupo: ¿Cuál fue la raíz del conflicto? ¿Qué estrategias usaron los personajes? ¿Qué funcionó y qué no? ¿Qué otras soluciones podrían haber intentado? Se hace una lista de estrategias efectivas.",
+            objetivo: "Desarrollar habilidades de resolución de conflictos"
+          }
+        },
+        "Día 2": {
+          "Actividad 1: Juego de El Mediador": {
+            descripcion: "Práctica de técnicas de mediación.",
+            detalles: "Se presentan situaciones de conflicto más complejas. Un estudiante actúa como mediador imparcial, practicando técnicas como: escuchar ambas partes, hacer preguntas clarificadoras, ayudar a encontrar puntos en común, y guiar hacia una solución mutuamente satisfactoria.",
+            objetivo: "Enseñar la mediación como herramienta de resolución de conflictos"
+          },
+          "Actividad 2: Práctica en parejas": {
+            descripcion: "Ejercicios de resolución de conflictos en parejas.",
+            detalles: "Cada pareja recibe una situación de conflicto por escrito. Deben trabajar juntos para: 1) Identificar el problema central, 2) Proponer al menos tres posibles soluciones, 3) Evaluar pros y contras de cada solución, 4) Llegar a un acuerdo sobre la mejor solución.",
+            objetivo: "Aplicar habilidades aprendidas en situaciones controladas"
+          }
+        }
+      },
+      "Semana 3: Evaluación y Práctica": {
+        "Día 1": {
+          "Actividad 1: Role-playing": {
+            descripcion: "Representación de situaciones reales de conflicto.",
+            detalles: "Los estudiantes crean y representan situaciones basadas en conflictos reales que han experimentado o presenciado. Deben incorporar las técnicas de comunicación y resolución de conflictos aprendidas. Las situaciones pueden incluir conflictos familiares, escolares o entre amigos.",
+            objetivo: "Aplicar habilidades de comunicación y resolución de conflictos en contextos reales"
+          },
+          "Actividad 2: Feedback en grupo": {
+            descripcion: "Sistema de retroalimentación constructiva.",
+            detalles: "Se establece un sistema de retroalimentación constructiva. Después de cada role-playing, los observadores comentan: 1) Algo que se hizo bien, 2) Una sugerencia de mejora, 3) Una pregunta o reflexión. Se enfatiza la importancia de ser específico y constructivo.",
+            objetivo: "Mejorar estrategias de resolución de conflictos"
+          }
+        },
+        "Día 2": {
+          "Actividad 1: Mi Resolución de Conflictos": {
+            descripcion: "Ensayo reflexivo sobre conflictos personales.",
+            detalles: "Los estudiantes escriben un ensayo reflexivo sobre un conflicto personal significativo. Deben describir la situación, cómo la manejaron, qué aprendieron, y cómo aplicarían lo aprendido en el curso si la situación se repitiera. Se puede compartir voluntariamente con el grupo.",
+            objetivo: "Fomentar la reflexión personal y el aprendizaje"
+          },
+          "Actividad 2: Evaluación": {
+            descripcion: "Evaluación dinámica del aprendizaje.",
+            detalles: "Se realiza una evaluación dinámica que incluye: preguntas de opción múltiple sobre conceptos clave, análisis de casos breves, y una discusión grupal sobre los aprendizajes más significativos. Se enfatiza la aplicación práctica más que la memorización.",
+            objetivo: "Evaluar la comprensión y el aprendizaje"
+          }
+        }
+      },
+      "Semana 4: Evaluación y Recompensa": {
+        "Día 1": {
+          "Actividad 1: Revisión": {
+            descripcion: "Repaso interactivo final.",
+            detalles: "Se realiza un repaso interactivo de los conceptos y habilidades principales. Los estudiantes crean mapas mentales o presentaciones creativas sobre los temas más importantes. Se comparten experiencias de cómo han aplicado lo aprendido fuera del aula.",
+            objetivo: "Reforzar el aprendizaje y preparar para la evaluación"
+          },
+          "Actividad 2: Distribución de fichas": {
+            descripcion: "Sistema de economía de fichas.",
+            detalles: "Se implementa un sistema de economía de fichas donde los estudiantes reciben puntos por: participación activa, apoyo a compañeros, uso efectivo de técnicas aprendidas, y mejora personal. Las fichas pueden canjearse por privilegios o reconocimientos acordados previamente.",
+            objetivo: "Motivar a través de la economía de fichas"
+          }
+        }
+      }
+    },
+    "Sesión 2: Autorregulación e Inteligencia Emocional": {
+      "Semana 1: Introducción y Autorregulación": {
+        "Día 1": {
+          "Actividad 1: Video introductorio": {
+            descripcion: "Proyección de video educativo sobre autorregulación.",
+            detalles: "El docente presentará un video educativo que explique el concepto de autorregulación de manera accesible, con ejemplos prácticos y situaciones cotidianas. Después del video, se realizará una breve discusión para asegurar la comprensión de los conceptos clave.",
+            objetivo: "Introducir el concepto de autorregulación"
+          },
+          "Actividad 2: Respiración profunda": {
+            descripcion: "Ejercicios de respiración profunda guiados.",
+            detalles: "Los estudiantes aprenderán y practicarán la técnica '4-7-8': inhalar por 4 segundos, mantener por 7 segundos, exhalar por 8 segundos. Se realizará en un ambiente tranquilo, preferiblemente con música suave de fondo. Se harán 3 series de 5 repeticiones.",
+            objetivo: "Enseñar técnicas básicas de relajación"
+          }
+        },
+        "Día 2": {
+          "Actividad 1: Diario de emociones": {
+            descripcion: "Los estudiantes escriben sobre sus emociones y sus causas.",
+            detalles: "Cada estudiante recibirá un cuaderno especial para su diario emocional. Durante 15 minutos, escribirán sobre sus emociones del día, usando preguntas guía: ¿Cómo me siento hoy? ¿Qué causó esta emoción? ¿Cómo reaccioné?",
+            objetivo: "Fomentar la autorreflexión y el reconocimiento de emociones"
+          },
+          "Actividad 2: Identificación de Emociones": {
+            descripcion: "Uso de tarjetas con diferentes emociones.",
+            detalles: "Se utilizará un set de 20 tarjetas con emociones básicas y complejas. Los estudiantes trabajarán en parejas, tomando turnos para elegir una tarjeta y describir una situación donde hayan sentido esa emoción. El compañero deberá adivinar la emoción basándose en la descripción.",
+            objetivo: "Mejorar el reconocimiento y la comprensión de emociones"
+          }
+        }
+      },
+      "Semana 2: Técnicas de Mindfulness y Manejo del Estrés": {
+        "Día 1": {
+          "Actividad 1: Sesión de mindfulness": {
+            descripcion: "Realización de una sesión de mindfulness guiada.",
+            detalles: "Sesión de 20 minutos dividida en tres partes: 5 minutos de preparación y postura, 10 minutos de atención a la respiración, y 5 minutos de atención plena a los sonidos del entorno. Se realizará sentados en círculo, con los ojos cerrados.",
+            objetivo: "Introducir técnicas de mindfulness"
+          },
+          "Actividad 2: Ejercicio de Escaneo Corporal": {
+            descripcion: "Ejercicio guiado de escaneo corporal para identificar tensiones.",
+            detalles: "Los estudiantes se acostarán en colchonetas. Durante 15 minutos, el instructor guiará la atención desde los pies hasta la cabeza, identificando y liberando tensiones en cada parte del cuerpo. Se utilizará una narrativa relajante y música suave.",
+            objetivo: "Enseñar técnicas de relajación corporal"
+          }
+        },
+        "Día 2": {
+          "Actividad 1: Presentación sobre estrés": {
+            descripcion: "Uso de diapositivas para explicar el estrés y su manejo.",
+            detalles: "Presentación interactiva de 30 minutos que incluye: definición del estrés, causas comunes, síntomas físicos y emocionales, y estrategias de manejo. Se utilizarán imágenes, videos cortos y se fomentará la participación con preguntas guía.",
+            objetivo: "Educar sobre el estrés y su manejo"
+          },
+          "Actividad 2: Caja de Herramientas de Estrés": {
+            descripcion: "Crear una caja con herramientas para manejar el estrés.",
+            detalles: "Cada estudiante decorará una caja y la llenará con elementos anti-estrés: lista personalizada de técnicas de respiración, tarjetas con afirmaciones positivas, pequeño objeto para apretar, instrucciones para ejercicios de estiramiento, y un diario miniatura.",
+            objetivo: "Proveer estrategias para el manejo del estrés"
+          }
+        }
+      },
+      "Semana 3: Aplicación de Técnicas y Autorregulación": {
+        "Día 1": {
+          "Actividad 1: Discusión de aplicación": {
+            descripcion: "Discusión sobre el uso de técnicas en diferentes contextos.",
+            detalles: "Sesión de grupo de 45 minutos donde los estudiantes comparten experiencias de uso de las técnicas aprendidas. Se crearán mapas mentales colectivos identificando situaciones específicas para cada técnica.",
+            objetivo: "Fomentar la transferencia de habilidades"
+          },
+          "Actividad 2: Práctica en simulaciones": {
+            descripcion: "Práctica de técnicas en escenarios simulados.",
+            detalles: "Role-playing de situaciones estresantes comunes (exámenes, conflictos, presentaciones). Los estudiantes practicarán las técnicas aprendidas en estos escenarios seguros. Cada simulación durará 10 minutos seguida de 5 minutos de reflexión.",
+            objetivo: "Reforzar el aprendizaje mediante la práctica"
+          }
+        },
+        "Día 2": {
+          "Actividad 1: Reflexión y feedback": {
+            descripcion: "Comentarios sobre la práctica de técnicas.",
+            detalles: "Sesión grupal donde cada estudiante comparte una técnica que le ha funcionado mejor y una que encuentra difícil. El grupo ofrece sugerencias y apoyo. Se documentarán las estrategias más efectivas.",
+            objetivo: "Mejorar las técnicas de autorregulación"
+          },
+          "Actividad 2: Evaluación interactiva": {
+            descripcion: "Actividad interactiva para evaluar el aprendizaje.",
+            detalles: "Juego de mesa especialmente diseñado con preguntas sobre conceptos clave y casos prácticos. Los estudiantes avanzarán respondiendo preguntas y resolviendo situaciones usando las técnicas aprendidas.",
+            objetivo: "Evaluar la comprensión y el aprendizaje"
+          }
+        }
+      },
+      "Semana 4: Evaluación y Recompensa": {
+        "Día 1": {
+          "Actividad 1: Evaluación final": {
+            descripcion: "Actividad interactiva de evaluación.",
+            detalles: "Evaluación práctica donde los estudiantes demuestran el uso de diferentes técnicas en situaciones dadas. Incluye una parte escrita de reflexión y una demostración práctica de técnicas de respiración y mindfulness.",
+            objetivo: "Evaluar la comprensión y el aprendizaje"
+          },
+          "Actividad 2: Distribución de fichas": {
+            descripcion: "Sistema de recompensas por participación.",
+            detalles: "Se entregará un número específico de fichas basado en criterios claros: participación activa (3 fichas), apoyo a compañeros (2 fichas), práctica consistente (3 fichas), etc. Las fichas podrán canjearse por privilegios o premios acordados.",
+            objetivo: "Motivar a través de la economía de fichas"
+          }
+        },
+        "Día 2": {
+          "Actividad 1: Plan personal": {
+            descripcion: "Diseño de plan personal de autorregulación.",
+            detalles: "Los estudiantes crearán un plan detallado que incluya: técnicas preferidas, situaciones donde aplicarlas, estrategias de respaldo, y metas personales de autorregulación. El plan se plasmará en un formato creativo elegido por cada estudiante.",
+            objetivo: "Consolidar el aprendizaje y planificar"
+          }
+        }
+      }
+    },
+    "Sesión 3: Técnicas y Participación Activa": {
+      "Semana 1: Aplicación de Técnicas y Autorregulación": {
+        "Día 1": {
+          "Actividad 1: Discusión grupal sobre distracciones": {
+            descripcion: "Identificación de distracciones comunes en el aula.",
+            detalles: "Formar un círculo con los estudiantes, iniciar una lluvia de ideas sobre distracciones comunes, anotar en la pizarra todas las contribuciones, categorizar las distracciones y discutir el impacto de cada tipo de distracción.",
+            objetivo: "Sensibilizar sobre las distracciones en el aula"
+          },
+          "Actividad 2: Mapa de Distracciones": {
+            descripcion: "Crear un mapa visual de distracciones comunes en el aula.",
+            detalles: "Dividir la clase en grupos de 3-4 estudiantes, entregar papelógrafos y marcadores, crear un plano del aula e identificar puntos de distracción.",
+            objetivo: "Visualizar y comprender las distracciones en el aula"
+          }
+        },
+        "Día 2": {
+          "Actividad 1: Reflexión sobre distracciones": {
+            descripcion: "Reflexión escrita y discusión sobre el impacto de las distracciones.",
+            detalles: "Proporcionar hojas de reflexión individual, guiar la reflexión con preguntas clave, compartir voluntariamente las reflexiones, crear un mural de compromisos.",
+            objetivo: "Fomentar la autorreflexión sobre el impacto de las distracciones"
+          },
+          "Actividad 2: Ejercicio de mindfulness": {
+            descripcion: "Ejercicio guiado de mindfulness enfocado en la concentración.",
+            detalles: "Crear ambiente tranquilo, guiar ejercicio de respiración consciente, realizar ejercicio de atención a sonidos, practicar observación consciente.",
+            objetivo: "Mejorar la capacidad de concentración"
+          }
+        }
+      },
+      "Semana 2: Métodos Interactivos": {
+        "Día 1": {
+          "Actividad 1: Juegos de atención": {
+            descripcion: "Juegos diseñados para mejorar la atención.",
+            detalles: "Incluye variaciones de 'Simón dice', 'Encuentra las diferencias', juegos de memoria y 'El director de orquesta' adaptados al contenido educativo.",
+            objetivo: "Fomentar el desarrollo de habilidades de atención"
+          },
+          "Actividad 2: Métodos interactivos": {
+            descripcion: "Uso de métodos interactivos para clases dinámicas.",
+            detalles: "Incorporar técnicas de storytelling, gamificación, recursos audiovisuales y actividades de respuesta física total.",
+            objetivo: "Mejorar el enfoque y la participación"
+          }
+        },
+        "Día 2": {
+          "Actividad 1: Juegos educativos participativos": {
+            descripcion: "Juegos que promueven el aprendizaje activo.",
+            detalles: "Realizar juegos de roles educativos, concursos de preguntas y respuestas, y actividades de aprendizaje cooperativo.",
+            objetivo: "Fomentar la participación activa en el aprendizaje"
+          },
+          "Actividad 2: Reflexión sobre métodos": {
+            descripcion: "Análisis de efectividad de métodos.",
+            detalles: "Crear grupos de discusión, analizar métodos efectivos, identificar aspectos a mejorar y elaborar conclusiones grupales.",
+            objetivo: "Evaluar la efectividad de los métodos interactivos"
+          }
+        }
+      },
+      "Semana 3: Participación Activa": {
+        "Día 1": {
+          "Actividad 1: El Aula Ideal": {
+            descripcion: "Diseño del aula ideal sin distracciones.",
+            detalles: "Formar equipos de diseño, proporcionar materiales, diseñar considerando iluminación, disposición y recursos, presentar y votar mejores ideas.",
+            objetivo: "Fomentar la creación de un entorno de aprendizaje ideal"
+          },
+          "Actividad 2: Implementación de ideas": {
+            descripcion: "Poner en práctica mejoras del entorno.",
+            detalles: "Seleccionar ideas viables, crear plan de implementación, asignar responsabilidades y ejecutar cambios.",
+            objetivo: "Poner en práctica las ideas para mejorar el entorno"
+          }
+        },
+        "Día 2": {
+          "Actividad 1: Evaluación de cambios": {
+            descripcion: "Evaluar el impacto de modificaciones.",
+            detalles: "Crear rúbrica de evaluación, recolectar feedback, analizar mejoras y documentar resultados.",
+            objetivo: "Evaluar la efectividad de las modificaciones"
+          },
+          "Actividad 2: Refuerzo positivo": {
+            descripcion: "Sistema de reconocimiento y motivación.",
+            detalles: "Presentar teoría del refuerzo positivo, demostrar ejemplos prácticos y crear sistema de reconocimiento.",
+            objetivo: "Enseñar el concepto de refuerzo positivo"
+          }
+        }
+      },
+      "Semana 4: Evaluación y Recompensa": {
+        "Día 1": {
+          "Actividad 1: Evaluación de técnicas": {
+            descripcion: "Evaluación global del programa.",
+            detalles: "Aplicar cuestionario, analizar datos, comparar con situación inicial y elaborar informe de resultados.",
+            objetivo: "Evaluar la efectividad del plan de acción"
+          },
+          "Actividad 2: Sistema de fichas": {
+            descripcion: "Implementación de economía de fichas.",
+            detalles: "Establecer criterios, distribuir fichas, crear 'tienda' de privilegios y evaluar la motivación generada.",
+            objetivo: "Motivar a través de la economía de fichas"
+          }
+        },
+        "Día 2": {
+          "Actividad 1: Celebración y cierre": {
+            descripcion: "Sesión final de cierre.",
+            detalles: "Presentar logros, compartir experiencias exitosas, entregar reconocimientos y establecer compromisos futuros.",
+            objetivo: "Cerrar la sesión con nota positiva"
+          }
+        }
+      }
+    }
+  };
+
+        function createAccordionSection(title, content, level = 0) {
+            const section = document.createElement('div');
+            section.className = 'accordion-section';
+            
+            const button = document.createElement('button');
+            button.className = 'accordion-button collapsed';
+            button.innerHTML = `${title} <span class="chevron"></span>`;
+            
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'accordion-content';
+            
+            if (typeof content === 'object' && content !== null) {
+                Object.entries(content).forEach(([key, value]) => {
+                    if (typeof value === 'object' && !value.descripcion) {
+                        contentDiv.appendChild(createAccordionSection(key, value, level + 1));
+                    } else if (value.descripcion) {
+                        contentDiv.appendChild(createActivityCard(key, value));
+                    }
+                });
+            }
+
+            button.addEventListener('click', () => {
+                button.classList.toggle('collapsed');
+                contentDiv.classList.toggle('active');
+            });
+
+            section.appendChild(button);
+            section.appendChild(contentDiv);
+
+            if (level > 0) {
+                section.classList.add('nested-content');
+            }
+
+            return section;
+        }
+
+        function createActivityCard(title, activity) {
+            const card = document.createElement('div');
+            card.className = 'activity-card';
+            
+            card.innerHTML = `
+                <h3 class="activity-title">${title}</h3>
+                <p class="activity-description">${activity.descripcion}</p>
+                ${activity.detalles ? `<p class="activity-details"><strong>Detalles:</strong> ${activity.detalles}</p>` : ''}
+                <p class="activity-objective"><strong>Objetivo:</strong> ${activity.objetivo}</p>
+            `;
+            
+            return card;
+        }
+
+        const container = document.getElementById('sessionContainer');
+        Object.entries(sessionData).forEach(([key, value]) => {
+            container.appendChild(createAccordionSection(key, value));
+        });
+    </script>
+</body>
+</html>
